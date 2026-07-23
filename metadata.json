@@ -1,0 +1,8 @@
+{
+  "name": "Remix: School Management App",
+  "description": "A modern, offline-first School Management App with student admission, fee management, daily attendance logging, and inventory/expiry tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

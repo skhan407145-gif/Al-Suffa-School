@@ -1,0 +1,192 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net (default deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Global Helper Functions ---
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-\\.\\s]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Validation Helper Blueprints ---
+
+    function isValidStudent(data) {
+      return data.id is int &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.className is string && data.className.size() > 0 && data.className.size() <= 30 &&
+             data.rollNo is string && data.rollNo.size() > 0 && data.rollNo.size() <= 20 &&
+             data.contact is string && data.contact.size() >= 0 && data.contact.size() <= 30 &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'name', 'className', 'rollNo', 'contact', 'fatherName', 'motherName', 'guardianName', 'guardianRelation', 'guardianContact', 'password']) &&
+             (!data.keys().hasAny(['fatherName']) || (data.fatherName is string && data.fatherName.size() <= 100)) &&
+             (!data.keys().hasAny(['motherName']) || (data.motherName is string && data.motherName.size() <= 100)) &&
+             (!data.keys().hasAny(['guardianName']) || (data.guardianName is string && data.guardianName.size() <= 100)) &&
+             (!data.keys().hasAny(['guardianRelation']) || (data.guardianRelation is string && data.guardianRelation.size() <= 50)) &&
+             (!data.keys().hasAny(['guardianContact']) || (data.guardianContact is string && data.guardianContact.size() <= 30)) &&
+             (!data.keys().hasAny(['password']) || (data.password is string && data.password.size() <= 100));
+    }
+
+    function isValidTeacher(data) {
+      return data.id is int &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.subject is string && data.subject.size() > 0 && data.subject.size() <= 50 &&
+             data.qualification is string && data.qualification.size() > 0 && data.qualification.size() <= 100 &&
+             data.className is string && data.className.size() > 0 && data.className.size() <= 30 &&
+             data.contact is string && data.contact.size() >= 0 && data.contact.size() <= 30 &&
+             data.email is string && data.email.size() >= 0 && data.email.size() <= 100 &&
+             (data.salary is int || data.salary is float) && data.salary >= 0 &&
+             data.joiningDate is string && data.joiningDate.size() == 10 &&
+             data.status is string && (data.status == 'Active' || data.status == 'On Leave') &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'name', 'subject', 'qualification', 'className', 'contact', 'email', 'salary', 'joiningDate', 'status', 'password']) &&
+             (!data.keys().hasAny(['password']) || (data.password is string && data.password.size() <= 100));
+    }
+
+    function isValidFee(data) {
+      return data.studentId is int &&
+             data.month is string && data.month.size() > 0 && data.month.size() <= 50 &&
+             (data.amount is int || data.amount is float) && data.amount >= 0 &&
+             data.status is string && (data.status == 'Paid' || data.status == 'Pending') &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'studentId', 'month', 'amount', 'status']);
+    }
+
+    function isValidAttendance(data) {
+      return data.studentId is int &&
+             data.date is string && data.date.size() == 10 &&
+             data.status is string && (data.status == 'Present' || data.status == 'Absent') &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'studentId', 'date', 'status']);
+    }
+
+    function isValidInventory(data) {
+      return data.id is int &&
+             data.itemName is string && data.itemName.size() > 0 && data.itemName.size() <= 100 &&
+             data.quantity is int && data.quantity >= 0 &&
+             data.lowStockThreshold is int && data.lowStockThreshold >= 0 &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'itemName', 'quantity', 'lowStockThreshold', 'expiryDate']) &&
+             (!data.keys().hasAny(['expiryDate']) || (data.expiryDate is string && data.expiryDate.size() <= 15));
+    }
+
+    function isValidFeedback(data) {
+      return data.id is int &&
+             data.studentId is int &&
+             data.studentName is string && data.studentName.size() > 0 && data.studentName.size() <= 100 &&
+             data.rollNo is string && data.rollNo.size() > 0 && data.rollNo.size() <= 20 &&
+             data.teachingRating is int && data.teachingRating >= 1 && data.teachingRating <= 5 &&
+             data.environmentRating is int && data.environmentRating >= 1 && data.environmentRating <= 5 &&
+             data.comments is string && data.comments.size() <= 2000 &&
+             data.date is string && data.date.size() <= 30 &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'studentId', 'studentName', 'rollNo', 'teachingRating', 'environmentRating', 'comments', 'date']);
+    }
+
+    function isValidLeave(data) {
+      return data.id is int &&
+             data.studentId is int &&
+             data.studentName is string && data.studentName.size() > 0 && data.studentName.size() <= 100 &&
+             data.rollNo is string && data.rollNo.size() > 0 && data.rollNo.size() <= 20 &&
+             data.startDate is string && data.startDate.size() == 10 &&
+             data.endDate is string && data.endDate.size() == 10 &&
+             data.reason is string && data.reason.size() <= 1000 &&
+             data.status is string && (data.status == 'Pending' || data.status == 'Approved' || data.status == 'Rejected') &&
+             data.dateSubmitted is string && data.dateSubmitted.size() <= 30 &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'studentId', 'studentName', 'rollNo', 'startDate', 'endDate', 'reason', 'status', 'dateSubmitted']);
+    }
+
+    function isValidResult(data) {
+      return data.studentId is int &&
+             data.examName is string && data.examName.size() > 0 && data.examName.size() <= 100 &&
+             data.subjectScores is list &&
+             (data.totalObtained is int || data.totalObtained is float) && data.totalObtained >= 0 &&
+             (data.totalPossible is int || data.totalPossible is float) && data.totalPossible >= 0 &&
+             data.totalObtained <= data.totalPossible &&
+             (data.percentage is int || data.percentage is float) && data.percentage >= 0 && data.percentage <= 100 &&
+             data.gpa is string && data.gpa.size() <= 10 &&
+             data.remarks is string && data.remarks.size() <= 1000 &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'studentId', 'examName', 'subjectScores', 'totalObtained', 'totalPossible', 'percentage', 'gpa', 'remarks']) &&
+             (!data.keys().hasAny(['id']) || data.id is int || isValidId(data.id));
+    }
+
+    function isValidAdmin(data) {
+      return data.id is int &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 100 &&
+             // Ensure no ghost/shadow fields
+             data.keys().hasOnly(['id', 'name', 'email', 'contact', 'password']) &&
+             (!data.keys().hasAny(['contact']) || (data.contact is string && data.contact.size() <= 30)) &&
+             (!data.keys().hasAny(['password']) || (data.password is string && data.password.size() <= 100));
+    }
+
+    // --- Match Rules for each collection ---
+
+    match /student/{studentId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(studentId) && isValidStudent(incoming());
+      allow update: if isValidId(studentId) && isValidStudent(incoming());
+    }
+
+    match /teacher/{teacherId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(teacherId) && isValidTeacher(incoming());
+      allow update: if isValidId(teacherId) && isValidTeacher(incoming());
+    }
+
+    match /admin/{adminId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(adminId) && isValidAdmin(incoming());
+      allow update: if isValidId(adminId) && isValidAdmin(incoming());
+    }
+
+    match /fees/{feeId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(feeId) && isValidFee(incoming());
+      allow update: if isValidId(feeId) && isValidFee(incoming());
+    }
+
+    match /attendance/{attendanceId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(attendanceId) && isValidAttendance(incoming());
+      allow update: if isValidId(attendanceId) && isValidAttendance(incoming());
+    }
+
+    match /inventory/{itemId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(itemId) && isValidInventory(incoming());
+      allow update: if isValidId(itemId) && isValidInventory(incoming());
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(feedbackId) && isValidFeedback(incoming());
+      allow update: if isValidId(feedbackId) && isValidFeedback(incoming());
+    }
+
+    match /leaves/{leaveId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(leaveId) && isValidLeave(incoming());
+      allow update: if isValidId(leaveId) && isValidLeave(incoming());
+    }
+
+    match /results/{resultId} {
+      allow get, list: if true;
+      allow create, delete: if isValidId(resultId) && isValidResult(incoming());
+      allow update: if isValidId(resultId) && isValidResult(incoming());
+    }
+  }
+}

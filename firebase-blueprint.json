@@ -1,0 +1,155 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "A student registered in the school system",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number", "description": "Unique identifier for the student" },
+        "name": { "type": "string", "description": "Full name of the student" },
+        "className": { "type": "string", "description": "Class or grade code" },
+        "rollNo": { "type": "string", "description": "Class roll number" },
+        "contact": { "type": "string", "description": "Contact number of guardian or student" },
+        "fatherName": { "type": "string", "description": "Father's name" },
+        "motherName": { "type": "string", "description": "Mother's name" },
+        "guardianName": { "type": "string", "description": "Guardian's name if applicable" },
+        "guardianRelation": { "type": "string", "description": "Relation of guardian" },
+        "guardianContact": { "type": "string", "description": "Contact number of guardian" },
+        "password": { "type": "string", "description": "Student login password" }
+      },
+      "required": ["id", "name", "className", "rollNo", "contact"]
+    },
+    "Teacher": {
+      "title": "Teacher",
+      "description": "A teacher registered in the school registry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number", "description": "Unique identifier for the teacher" },
+        "name": { "type": "string", "description": "Full name of the teacher" },
+        "subject": { "type": "string", "description": "Main subject taught by the teacher" },
+        "qualification": { "type": "string", "description": "Educational qualification of the teacher" },
+        "className": { "type": "string", "description": "Class code designated to this teacher" },
+        "contact": { "type": "string", "description": "Contact number" },
+        "email": { "type": "string", "description": "Email address" },
+        "salary": { "type": "number", "description": "Monthly salary" },
+        "joiningDate": { "type": "string", "description": "Date of joining (YYYY-MM-DD)" },
+        "status": { "type": "string", "enum": ["Active", "On Leave"], "description": "Current active status" },
+        "password": { "type": "string", "description": "Login password" }
+      },
+      "required": ["id", "name", "subject", "qualification", "className", "contact", "email", "salary", "joiningDate", "status"]
+    },
+    "FeeRecord": {
+      "title": "FeeRecord",
+      "description": "A monthly tuition fee record for a student",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique record key, usually fee_studentId_month" },
+        "studentId": { "type": "number", "description": "Reference to the student ID" },
+        "month": { "type": "string", "description": "Fee month name e.g. July 2026" },
+        "amount": { "type": "number", "description": "Tuition fee amount" },
+        "status": { "type": "string", "enum": ["Paid", "Pending"], "description": "Status of the payment" }
+      },
+      "required": ["studentId", "month", "amount", "status"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Daily attendance status of a student",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique record key, usually att_studentId_date" },
+        "studentId": { "type": "number", "description": "Reference to the student ID" },
+        "date": { "type": "string", "description": "Date of attendance (YYYY-MM-DD)" },
+        "status": { "type": "string", "enum": ["Present", "Absent"], "description": "Attendance status" }
+      },
+      "required": ["studentId", "date", "status"]
+    },
+    "InventoryItem": {
+      "title": "InventoryItem",
+      "description": "School supply or stock asset item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number", "description": "Unique identifier for the item" },
+        "itemName": { "type": "string", "description": "Name of the supply item" },
+        "quantity": { "type": "number", "description": "Current quantity in stock" },
+        "lowStockThreshold": { "type": "number", "description": "Threshold for low stock warnings" },
+        "expiryDate": { "type": "string", "description": "Optional expiry date (YYYY-MM-DD)" }
+      },
+      "required": ["id", "itemName", "quantity", "lowStockThreshold"]
+    },
+    "StudentFeedback": {
+      "title": "StudentFeedback",
+      "description": "Feedback submitted anonymously or identified by a student",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number", "description": "Unique feedback ID" },
+        "studentId": { "type": "number", "description": "Submitting student reference" },
+        "studentName": { "type": "string", "description": "Name of student" },
+        "rollNo": { "type": "string", "description": "Roll number" },
+        "teachingRating": { "type": "number", "description": "Teaching quality rating 1-5" },
+        "environmentRating": { "type": "number", "description": "Environment quality rating 1-5" },
+        "comments": { "type": "string", "description": "Custom remarks and suggestions" },
+        "date": { "type": "string", "description": "Submission date" }
+      },
+      "required": ["id", "studentId", "studentName", "rollNo", "teachingRating", "environmentRating", "comments", "date"]
+    },
+    "LeaveApplication": {
+      "title": "LeaveApplication",
+      "description": "A leave application submitted by a student",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number", "description": "Unique leave ID" },
+        "studentId": { "type": "number", "description": "Applying student reference" },
+        "studentName": { "type": "string", "description": "Name of student" },
+        "rollNo": { "type": "string", "description": "Roll number" },
+        "startDate": { "type": "string", "description": "Start of leave date" },
+        "endDate": { "type": "string", "description": "End of leave date" },
+        "reason": { "type": "string", "description": "Reason for leave" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected"], "description": "Leave review status" },
+        "dateSubmitted": { "type": "string", "description": "Submission date" }
+      },
+      "required": ["id", "studentId", "studentName", "rollNo", "startDate", "endDate", "reason", "status", "dateSubmitted"]
+    },
+    "SubjectScore": {
+      "title": "SubjectScore",
+      "description": "Marks in an individual academic subject",
+      "type": "object",
+      "properties": {
+        "subject": { "type": "string", "description": "Subject name" },
+        "marks": { "type": "number", "description": "Obtained marks" },
+        "totalMarks": { "type": "number", "description": "Maximum possible marks" },
+        "grade": { "type": "string", "description": "Subject letter grade" }
+      },
+      "required": ["subject", "marks", "totalMarks", "grade"]
+    },
+    "StudentResult": {
+      "title": "StudentResult",
+      "description": "Grading report card / exam result for a student",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "number", "description": "Student ID reference" },
+        "examName": { "type": "string", "description": "Name of the term or exam session" },
+        "subjectScores": {
+          "type": "array",
+          "items": { "$ref": "#/entities/SubjectScore" },
+          "description": "Marks in individual subjects"
+        },
+        "totalObtained": { "type": "number", "description": "Sum of obtained marks" },
+        "totalPossible": { "type": "number", "description": "Sum of total possible marks" },
+        "percentage": { "type": "number", "description": "Result percentage" },
+        "gpa": { "type": "string", "description": "Calculated Grade Point Average or equivalent" },
+        "remarks": { "type": "string", "description": "Remarks from the grading teacher" }
+      },
+      "required": ["studentId", "examName", "totalObtained", "totalPossible", "percentage", "gpa", "remarks"]
+    }
+  },
+  "firestore": {
+    "students": { "schema": "Student", "description": "Registered students profiles" },
+    "teachers": { "schema": "Teacher", "description": "Registered teachers profiles" },
+    "fees": { "schema": "FeeRecord", "description": "Collection of students monthly fees" },
+    "attendance": { "schema": "AttendanceRecord", "description": "Daily attendance log database" },
+    "inventory": { "schema": "InventoryItem", "description": "School asset and supply items" },
+    "feedbacks": { "schema": "StudentFeedback", "description": "Anonymized teaching and environment feedback" },
+    "leaves": { "schema": "LeaveApplication", "description": "Student leave application requests" },
+    "results": { "schema": "StudentResult", "description": "Academic result cards for students" }
+  }
+}

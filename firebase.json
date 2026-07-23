@@ -1,0 +1,8 @@
+{
+  "firestore": [
+    {
+      "database": "ai-studio-schoolmanagement-eac556dd-222e-4a82-b97c-e75002da812a",
+      "rules": "firestore.rules"
+    }
+  ]
+}
