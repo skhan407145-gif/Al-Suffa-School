@@ -141,3 +141,9 @@ Declare the following environment variables in your Vercel project settings or l
 ## 📄 License
 
 This project is licensed under the MIT License.
+<img width="1154" height="762" alt="image" src="https://github.com/user-attachments/assets/3acf4a17-cd32-4376-8e7b-91045049eb9c" />
+<img width="1151" height="761" alt="image" src="https://github.com/user-attachments/assets/4b51f52d-242a-45ec-9ecb-deccdcb65e8a" />
+<img width="1142" height="740" alt="image" src="https://github.com/user-attachments/assets/9ba994fc-ab73-4055-9381-cd7353ae4b19" />
+
+
+
