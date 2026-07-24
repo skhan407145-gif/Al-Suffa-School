@@ -1,5 +1,7 @@
 # Al-Suffa School Management Application 🎓
 
+> **🌐 Live Demo:** [https://al-suffa-school.vercel.app/](https://al-suffa-school.vercel.app/)
+
 A modern, full-stack School Management System for **Al-Suffa Science & Grammar High Schools**. Built with **React 19**, **TypeScript**, **Tailwind CSS**, and **Express / Vercel Serverless Functions**, integrated with **Google Gemini 3.6 Flash AI**.
 
 ---
