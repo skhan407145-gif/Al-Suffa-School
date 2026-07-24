@@ -29,7 +29,6 @@ def get_firebase_config():
                 pass
     return {
         "projectId": "summer-hue-qtxfk",
-        "apiKey": "AIzaSyCdrFyCeN3pX_8R9u-_7TqflCSJ07wy6dY",
         "firestoreDatabaseId": "ai-studio-schoolmanagement-eac556dd-222e-4a82-b97c-e75002da812a"
     }
 
